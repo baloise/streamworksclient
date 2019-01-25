@@ -4,13 +4,18 @@ import java.io.IOException;
 
 import org.apache.http.auth.UsernamePasswordCredentials;
 
+import com.baloise.streamstarter.model.PrepareRequest;
+import com.baloise.streamstarter.model.PrepareResponse;
 import com.baloise.streamstarter.model.Response;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.BaseRequest;
+import com.mashape.unirest.request.HttpRequest;
+import com.mashape.unirest.request.body.RequestBodyEntity;
 
 public class StreamWorksClient {
 
@@ -61,16 +66,127 @@ public class StreamWorksClient {
 		String query = "streamruns";
 		
 		String url = baseURL+"{query}/{mandator}/{plandat}/{stream}/{runNo}";
-		BaseRequest req = Unirest.get(url)
+		HttpRequest req = Unirest.get(url)
 				  .routeParam("query", query)
 				  .routeParam("mandator", mandator)
 				  .routeParam("plandat", planDate)
 				  .routeParam("stream", streamName)
-				  .routeParam("runNo", String.valueOf(runNo))
-				.header("accept", "application/json")
-				.basicAuth(credentials.getUserName(), credentials.getPassword());
+				  .routeParam("runNo", String.valueOf(runNo));
+		return request(req, Response.class);
+
+	}
+	
+	public Response getStreamRunsPrepared(String id) throws UnirestException {
 		
-		return req.asObject(Response.class).getBody();
+		String query = "streamruns";
+		
+		String url = baseURL+"{query}/{mandator}/{id}";
+		HttpRequest req = Unirest.get(url)
+				  .routeParam("query", query)
+				  .routeParam("mandator", mandator)
+				  .routeParam("id", id);			  
+				 
+		return request(req, Response.class);
+	}
+	
+
+	public Response getStreamRunJobs(String streamName, String planDate, int runNo) throws UnirestException {
+		
+		String query = "streamrunjobs";
+		
+		String url = baseURL+"{query}/{mandator}/{plandat}/{stream}/{runNo}";
+		HttpRequest req = Unirest.get(url)
+				  .routeParam("query", query)
+				  .routeParam("mandator", mandator)
+				  .routeParam("plandat", planDate)
+				  .routeParam("stream", streamName)
+				  .routeParam("runNo", String.valueOf(runNo));
+		
+		return request(req, Response.class);
+	}
+	
+	public int schedule(String streamName, String planDate) throws UnirestException {
+		
+		String query = "schedules";
+		
+		String url = baseURL+"{query}/{mandator}/{plandat}/{stream}";
+		HttpRequest req = Unirest.post(url)
+				  .routeParam("query", query)
+				  .routeParam("mandator", mandator)
+				  .routeParam("plandat", planDate)
+				  .routeParam("stream", streamName)
+				  .header("accept", "application/json")
+				  .basicAuth(credentials.getUserName(), credentials.getPassword()); 
+		
+		System.out.println(req.getBody());
+		HttpResponse<String> response = req.asString();
+		
+		return response.getStatus();				
+	}
+	
+	/**
+	 * @return the preparationId
+	 */
+	public String prepareNextWithParms(String streamName, String planDate, PrepareRequest request) throws UnirestException {
+		
+		String query = "preparations";
+		String runNo = "P";
+			
+		String url = baseURL+"{query}/{mandator}/{plandat}/{stream}/{runNo}";
+		
+		String body = request.toString();
+		System.out.println(body);
+		BaseRequest req = Unirest.post(url)
+				  .routeParam("query", query)
+				  .routeParam("mandator", mandator)
+				  .routeParam("plandat", planDate)
+				  .routeParam("stream", streamName)
+				  .routeParam("runNo", runNo)
+				  .basicAuth(credentials.getUserName(), credentials.getPassword())
+				  .header("accept", "text/plain")
+				  .header("Content-Type" , "application/json" )
+				  .body(body);
+
+		//System.err.println(req.asString().getBody());
+		HttpResponse<PrepareResponse> response = req.asObject(PrepareResponse.class);		 	    
+		
+		return response.getBody().PreparationIds.P;
+	}
+
+	/**
+	 * @return the preparationId
+	 */
+	public String prepareNext(String streamName, String planDate) throws UnirestException {
+		
+		String query = "preparations";
+		String runNo = "P";
+			
+		String url = baseURL+"{query}/{mandator}/{plandat}/{stream}/{runNo}";
+		
+		// String body = request.toString();
+		// System.out.println(body);
+		BaseRequest req = Unirest.post(url)
+				  .routeParam("query", query)
+				  .routeParam("mandator", mandator)
+				  .routeParam("plandat", planDate)
+				  .routeParam("stream", streamName)
+				  .routeParam("runNo", runNo)
+				  .basicAuth(credentials.getUserName(), credentials.getPassword())
+				  .header("accept", "text/plain")
+				  .header("Content-Type" , "application/json");
+
+		//System.err.println(req.asString().getBody());
+		HttpResponse<PrepareResponse> response = req.asObject(PrepareResponse.class);		 	    
+		
+		return response.getBody().PreparationIds.P;
+	}
+	
+	private Response request(HttpRequest req, Class<Response> responseClass) throws UnirestException {
+		req.header("accept", "application/json")
+		.basicAuth(credentials.getUserName(), credentials.getPassword());
+		// for debug
+			System.err.println(req.asString().getBody());
+		return req.asObject(responseClass).getBody();
 	}
 
 }
