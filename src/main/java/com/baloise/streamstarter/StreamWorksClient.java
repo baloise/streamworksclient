@@ -105,6 +105,19 @@ public class StreamWorksClient {
 		return request(req, Response.class);
 	}
 	
+	public Response getStreamRunJobsPrepared(String id) throws UnirestException {
+		
+		String query = "streamrunjobs";
+		
+		String url = baseURL+"{query}/{mandator}/{id}";
+		HttpRequest req = Unirest.get(url)
+				  .routeParam("query", query)
+				  .routeParam("mandator", mandator)
+				  .routeParam("id", id);
+		
+		return request(req, Response.class);
+	}
+	
 	public int schedule(String streamName, String planDate) throws UnirestException {
 		
 		String query = "schedules";
@@ -118,7 +131,7 @@ public class StreamWorksClient {
 				  .header("accept", "application/json")
 				  .basicAuth(credentials.getUserName(), credentials.getPassword()); 
 		
-		System.out.println(req.getBody());
+		// System.out.println(req.getBody());
 		HttpResponse<String> response = req.asString();
 		
 		return response.getStatus();				
@@ -147,7 +160,7 @@ public class StreamWorksClient {
 				  .header("Content-Type" , "application/json" )
 				  .body(body);
 
-		//System.err.println(req.asString().getBody());
+		// System.err.println(req.asString().getBody());
 		HttpResponse<PrepareResponse> response = req.asObject(PrepareResponse.class);		 	    
 		
 		return response.getBody().PreparationIds.P;
@@ -175,7 +188,7 @@ public class StreamWorksClient {
 				  .header("accept", "text/plain")
 				  .header("Content-Type" , "application/json");
 
-		//System.err.println(req.asString().getBody());
+		System.err.println(req.asString().getBody());
 		HttpResponse<PrepareResponse> response = req.asObject(PrepareResponse.class);		 	    
 		
 		return response.getBody().PreparationIds.P;
@@ -185,7 +198,7 @@ public class StreamWorksClient {
 		req.header("accept", "application/json")
 		.basicAuth(credentials.getUserName(), credentials.getPassword());
 		// for debug
-			System.err.println(req.asString().getBody());
+		//	System.err.println(req.asString().getBody());
 		return req.asObject(responseClass).getBody();
 	}
 
