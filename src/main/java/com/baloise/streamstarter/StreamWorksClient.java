@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.apache.http.auth.UsernamePasswordCredentials;
 
-import com.baloise.streamstarter.model.ImmedRequest;
 import com.baloise.streamstarter.model.PrepareRequest;
 import com.baloise.streamstarter.model.PrepareResponse;
 import com.baloise.streamstarter.model.Response;
@@ -16,7 +15,6 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import com.mashape.unirest.request.BaseRequest;
 import com.mashape.unirest.request.HttpRequest;
-import com.mashape.unirest.request.body.RequestBodyEntity;
 
 public class StreamWorksClient {
 
@@ -177,35 +175,36 @@ public class StreamWorksClient {
 		
 		return response.getStatus();				
 	}
-	/**
-	 * Start Stream immediately 
-	 * if start-time not set by streamworks  or start-time is later than current time
-	 *     
- 	 * @return
-	 * @throws UnirestException
-	 */
-	public int streamrunstartsPrepared(String prepId, ImmedRequest request) throws UnirestException {
-		
-		String query = "streamrunstarts";		 
-			
-		String url = baseURL+"{query}/{mandator}/{prepId}";
-		
-		String body = request.toString();
-		// System.out.println(body);
-		BaseRequest req = Unirest.post(url)
-				  .routeParam("query", query)
-				  .routeParam("mandator", mandator)
-				  .routeParam("prepId", prepId)
-				  .basicAuth(credentials.getUserName(), credentials.getPassword())
-				  .header("accept", "text/plain")
-				  .header("Content-Type" , "application/json") 
-				  .body(body);
-
-		System.err.println(req.asString().getBody());		
-		HttpResponse<String> response = req.asString();
-		
-		return response.getStatus();
-	}
+	
+//	/**
+//	 * Start Stream immediately 
+//	 * if start-time not set by streamworks  or start-time is later than current time
+//	 *     
+// 	 * @return
+//	 * @throws UnirestException
+//	 */
+//	public int streamrunstartsPrepared(String prepId, ImmedRequest request) throws UnirestException {
+//		
+//		String query = "streamrunstarts";		 
+//			
+//		String url = baseURL+"{query}/{mandator}/{prepId}";
+//		
+//		String body = request.toString();
+//		// System.out.println(body);
+//		BaseRequest req = Unirest.post(url)
+//				  .routeParam("query", query)
+//				  .routeParam("mandator", mandator)
+//				  .routeParam("prepId", prepId)
+//				  .basicAuth(credentials.getUserName(), credentials.getPassword())
+//				  .header("accept", "text/plain")
+//				  .header("Content-Type" , "application/json") 
+//				  .body(body);
+//
+//		System.err.println(req.asString().getBody());		
+//		HttpResponse<String> response = req.asString();
+//		
+//		return response.getStatus();
+//	}
 	
 	/**
 	 * Prepare Stream next run with Parameters
